@@ -1,0 +1,7 @@
+import { render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+export * from '@testing-library/react';
+
+export function renderWithRouter(ui, { route = '/', ...opts } = {}) {
+  return render(<MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>, opts);
+}
