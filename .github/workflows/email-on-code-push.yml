@@ -1,0 +1,36 @@
+name: Email alerts on every code push
+
+on:
+  push:   # this means any branch, any push
+
+jobs:
+  email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send email via Office 365 SMTP
+        uses: dawidd6/action-send-mail@v6
+        with:
+          # SMTP config (using secrets)
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: 587
+          secure: false               # STARTTLS on port 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+
+          # Email metadata
+          from: ${{ secrets.SMTP_USERNAME }}
+          to: ${{ secrets.ALERT_RECIPIENTS }}
+          subject: >
+            🔔 ${{ github.repository }}: push on '${{ github.ref_name }}'
+            by ${{ github.actor }}
+
+          # Email body (HTML)
+          html_body: |
+            <p><b>Repository:</b> ${{ github.repository }}</p>
+            <p><b>Branch:</b> ${{ github.ref_name }}</p>
+            <p><b>Pusher:</b> ${{ github.actor }}</p>
+            <p><b>Latest commit:</b> ${{ github.event.head_commit.message }}</p>
+            <p><a href="${{ github.event.compare }}">View diff</a></p>
