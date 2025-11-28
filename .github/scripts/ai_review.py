@@ -21,7 +21,7 @@ def main():
 
     deployment_name = os.environ.get("AZURE_DEPLOYMENT", "gpt-4o")
 
- system_prompt = dedent("""
+    system_prompt = dedent("""
         You are a senior QA engineer and software architect reviewing a code change.
 
         Your job:
