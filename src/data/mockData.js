@@ -20,7 +20,6 @@ export const products = [
   { id: 14, name: 'Classic Leather Belt', price: 40, image: require('../assets/LeatherBelt.jpg') },
   { id: 15, name: 'Cozy Hoodie', price: 65, image: require('../assets/CozyHoodie.jpg') },
   { id: 16, name: 'Formal Oxford Shoes', price: 140, image: require('../assets/FormalShoes.jpg') },
-  { id: 12, name: 'Silk Scarf', price: 45, image: require('../assets/SilkScarf.jpg') },
 ];
 
 
