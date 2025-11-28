@@ -1,7 +1,6 @@
 import os
 import sys
 from textwrap import dedent
-
 from openai import OpenAI
 
 
