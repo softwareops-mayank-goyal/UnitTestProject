@@ -15,7 +15,8 @@ def main():
 
     client = AzureOpenAI(
         api_key=os.environ["AZURE_API_KEY"],
-        azure_endpoint=os.environ["AZUREAPI"]
+        azure_endpoint=os.environ["AZUREAPI"],
+        api_version=os.environ.get("AZURE_API_VERSION", "2024-02-15-preview"),
     )
 
     deployment_name = os.environ.get("AZURE_DEPLOYMENT", "gpt-4o")
