@@ -52,10 +52,12 @@ jobs:
       - name: Run AI review
         id: ai_review
         env:
-          # Make sure this matches your repo secret name
+          # must match your repo secret name
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
-          python .github/scripts/ai_review.py < diff.txt > review.md
+          echo "Workspace is: $GITHUB_WORKSPACE"
+          ls -R .
+          python "$GITHUB_WORKSPACE/.github/scripts/ai_review.py" < diff.txt > review.md
           echo 'review<<EOF' >> $GITHUB_OUTPUT
           cat review.md >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
