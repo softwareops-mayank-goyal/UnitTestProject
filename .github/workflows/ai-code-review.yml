@@ -53,7 +53,11 @@ jobs:
         id: ai_review
         env:
           # must match your repo secret name
-          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
+           AZUREAPI: ${{ secrets.AZUREAPI }}
+           AZURE_API_VERSION: ${{ secrets.AZURE_API_VERSION }}
+           AZURE_DEPLOYMENT: gpt-4o   
+
         run: |
           echo "Workspace is: $GITHUB_WORKSPACE"
           ls -R .
