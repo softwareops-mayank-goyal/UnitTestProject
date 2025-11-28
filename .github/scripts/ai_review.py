@@ -1,14 +1,14 @@
 import os
 import sys
 from textwrap import dedent
-from openai import OpenAI
+
+from openai import AzureOpenAI
 
 
 def main():
     # Read diff from stdin
     diff = sys.stdin.read().strip()
     if not diff:
-        # Nothing changed (or failed to get diff)
         print("No relevant changes detected.", end="")
         return
 
@@ -16,10 +16,18 @@ def main():
     if len(diff) > 16000:
         diff = diff[:16000] + "\n\n[Diff truncated for review…]"
 
-    client = OpenAI(api_key=os.environ["OPENAI_KEY"])
+    # ---- Azure OpenAI client ----
+    # These come from GitHub Action env vars / secrets
+    client = AzureOpenAI(
+        api_key=os.environ["AZURE_API_KEY"],
+        azure_endpoint=os.environ["AZUREAPI"],
+        api_version=os.environ.get("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
+    )
+
+    deployment_name = "gpt-4o"
 
     system_prompt = dedent("""
-        You are a senior QA engineer and software architect reviewing a pull request.
+        You are a senior QA engineer and software architect reviewing a code change.
 
         Your job:
         - Understand what changed based on the git diff.
@@ -51,10 +59,10 @@ def main():
         Only comment on parts visible in the diff.
     """)
 
-    user_prompt = f"Here is the git diff for this pull request:\n\n```diff\n{diff}\n```"
+    user_prompt = f"Here is the git diff for this change:\n\n```diff\n{diff}\n```"
 
     completion = client.chat.completions.create(
-        model="gpt-4o",
+        model=deployment_name,  # Azure uses deployment name here
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
