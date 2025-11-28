@@ -1,0 +1,27 @@
+name: GitHub → Teams code push alert
+
+on:
+  push:   # any branch
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send payload to Power Automate- Teams- webhook
+        run: |
+          payload=$(jq -n --arg repo "${{ github.repository }}" \
+                         --arg branch "${{ github.ref_name }}" \
+                         --arg actor "${{ github.actor }}" \
+                         --arg msg "${{ github.event.head_commit.message }}" \
+                         --arg url "${{ github.event.compare }}" \
+                         '{
+                            "repo": $repo,
+                            "branch": $branch,
+                            "actor": $actor,
+                            "message": $msg,
+                            "compareUrl": $url
+                          }')
+          curl -H "Content-Type: application/json" \
+               -d "$payload" \
+               "${{ secrets.POWERAUTOMATE_TEAMS_WEBHOOK_URL }}"
