@@ -1,8 +1,7 @@
 name: AI Code Review
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+  push: #Any Brach
 
 jobs:
   ai-review:
