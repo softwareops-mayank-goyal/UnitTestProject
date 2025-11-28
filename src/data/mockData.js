@@ -5,7 +5,7 @@ export const user = {
 
 export const products = [
   { id: 1, name: 'Classic Denim Jacket', price: 200, image: require('../assets/denim-jacket.jpg') },
-  { id: 2, name: 'Stylish Backpack', price: 75, image: require('../assets/backpack.jpg') },
+  { id: 2, name: 'Stylish Backpack', price: 175, image: require('../assets/backpack.jpg') },
   { id: 3, name: 'Minimalist Sneakers', price: 100, image: require('../assets/sneakers.jpg') },
   { id: 4, name: 'Elegant Wrist Watch', price: 250, image: require('../assets/wrist-watch.jpg') },
   { id: 5, name: 'Casual T-Shirt', price: 35, image: require('../assets/casual-tshirt.jpg') },
