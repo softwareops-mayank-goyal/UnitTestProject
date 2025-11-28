@@ -24,7 +24,7 @@ jobs:
           from: ${{ secrets.SMTP_USERNAME }}
           to: ${{ secrets.ALERT_RECIPIENTS }}
           subject: >
-            🔔 ${{ github.repository }}: push on '${{ github.ref_name }}'
+            ${{ github.repository }}: push on '${{ github.ref_name }}'
             by ${{ github.actor }}
 
           # Email body (HTML)
