@@ -53,7 +53,7 @@ jobs:
         id: ai_review
         env:
           # Make sure this matches your repo secret name
-          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
         run: |
           python .github/scripts/ai_review.py < diff.txt > review.md
           echo 'review<<EOF' >> $GITHUB_OUTPUT
