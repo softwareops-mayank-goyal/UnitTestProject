@@ -22,11 +22,12 @@ jobs:
           echo "PATH:"
           echo $env:PATH
           git --version
-        shell: pwsh
+        shell: powershell
 
       - name: Compute diff for this event
         id: diff
-        run: |       
+        run: |      
+          shell: powershell
           $eventName = "${{ github.event_name }}"
 
           if ($eventName -eq "pull_request") {
