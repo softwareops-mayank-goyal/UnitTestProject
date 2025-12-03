@@ -80,23 +80,32 @@ jobs:
           echo "Workspace is: $env:GITHUB_WORKSPACE"
           Get-ChildItem -Recurse .
 
-          # *** IMPORTANT: PowerShell-style input, NO '< diff.txt' ***
+          # 1) Run Python review script: diff.txt -> review_raw.md
           Get-Content diff.txt |
-            python "$env:GITHUB_WORKSPACE/.github/scripts/ai_review.py" |
-            
-          # ✅ Beautify Markdown for Teams
+            python "$env:GITHUB_WORKSPACE/.github/scripts/ai_review.py" `
+            > review_raw.md
+
+          # 2) Beautify Markdown for Teams
           $text = Get-Content review_raw.md -Raw
 
-          $text = $text -replace '## ', "`n🔷 "
+          # Headings → bullet sections
+          $text = $text -replace '## ', "`n`n🔷 "
+          # Bullets → simple dot bullets
           $text = $text -replace '- ', "• "
+          # Remove bold markers **...**
           $text = $text -replace '\*\*(.*?)\*\*', '$1'
+          # Strip backticks
           $text = $text -replace '`', ''
 
-          Set-Content review_teams.txt $text -Encoding UTF8
+          # Save pretty text for Teams & summary
+          $text | Set-Content review_teams.txt -Encoding UTF8
+          $text | Set-Content review.md -Encoding UTF8
 
-          echo "review<<EOF" >> $env:GITHUB_OUTPUT
-          Get-Content review_teams.txt >> $env:GITHUB_OUTPUT
-          echo "EOF" >> $env:GITHUB_OUTPUT
+          # 3) Expose as GitHub Action output
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "review<<EOF"
+          Get-Content review_teams.txt | Add-Content -Path $env:GITHUB_OUTPUT
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "EOF"
+
 
       - name: Send AI review to Teams via Power Automate
         if: always()   # send even if review step failed
