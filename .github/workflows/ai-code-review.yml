@@ -89,6 +89,48 @@ jobs:
           Get-Content review.md | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           'EOF' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
+      - name: Send AI review to Teams via Power Automate
+        if: always()   # send even if review step failed
+        shell: powershell
+        env:
+          TEAMS_WEBHOOK: ${{ secrets.POWERAUTOMATE_TEAMS_WEBHOOK_URL }}
+          REVIEW_BODY:   ${{ steps.ai_review.outputs.review }}
+        run: |
+          if (-not $env:TEAMS_WEBHOOK) {
+            Write-Host "No Teams webhook configured, skipping."
+            exit 0
+          }
+
+          # Fallback if the AI step didn’t produce anything
+          $review = $env:REVIEW_BODY
+          if ([string]::IsNullOrWhiteSpace($review)) {
+            $review = "AI review completed but returned no detailed comments."
+          }
+
+          # Build payload compatible with your existing flow,
+          # plus one extra field: aiReview
+          $payload = @{
+            repo       = "$env:GITHUB_REPOSITORY"
+            branch     = "$env:GITHUB_REF_NAME"
+            actor      = "$env:GITHUB_ACTOR"
+            message    = "${{ github.event.head_commit.message }}"
+            compareUrl = "${{ github.event.compare }}"
+            aiReview   = $review
+          }
+
+          $json = $payload | ConvertTo-Json -Depth 6
+
+          Write-Host "Payload to Teams:"
+          Write-Host $json
+
+          Invoke-RestMethod `
+            -Uri $env:TEAMS_WEBHOOK `
+            -Method Post `
+            -ContentType 'application/json' `
+            -Body $json
+
+          Write-Host "AI review sent to Teams."
+
       - name: Attach AI review to Summary (push)
         if: github.event_name == 'push'
         shell: powershell
