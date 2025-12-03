@@ -70,6 +70,7 @@ jobs:
 
       - name: Run AI review
         id: ai_review
+        shell: powershell
         env:
           # must match your repo secret names
           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
@@ -77,12 +78,12 @@ jobs:
           AZURE_API_VERSION: ${{ secrets.AZURE_API_VERSION }}
           AZURE_DEPLOYMENT: gpt-4o
         run: |
-          echo "Workspace is: $GITHUB_WORKSPACE"
+          echo "Workspace is: $env:GITHUB_WORKSPACE"
           ls -R .
-          python "$GITHUB_WORKSPACE/.github/scripts/ai_review.py" < diff.txt > review.md
-          echo 'review<<EOF' >> $GITHUB_OUTPUT
-          cat review.md >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          Get-Content diff.txt | python "$env:GITHUB_WORKSPACE/.github/scripts/ai_review.py" < diff.txt > review.md
+          echo 'review<<EOF' >> $env:GITHUB_OUTPUT
+          cat review.md >> $env:GITHUB_OUTPUT
+          echo 'EOF' >> $env:GITHUB_OUTPUT
 
       - name: Attach AI review to Summary (push)
         if: github.event_name == 'push'
