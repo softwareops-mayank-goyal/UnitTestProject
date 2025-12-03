@@ -4,6 +4,7 @@ on:
   push:               # any branch push
   pull_request:       # PR opened/updated
 
+
 jobs:
   ai-review:
     runs-on: [self-hosted, Windows, X64]
