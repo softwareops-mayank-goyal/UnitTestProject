@@ -17,6 +17,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug git on runner
+        run: |
+          echo "PATH:"
+          echo $env:PATH
+          git --version
+        shell: pwsh
+
       - name: Compute diff for this event
         id: diff
         run: |       
