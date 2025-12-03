@@ -19,30 +19,37 @@ jobs:
 
       - name: Compute diff for this event
         id: diff
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "Event is pull_request"
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          else
-            echo "Event is push"
-            # 'before' is the previous commit on this branch
-            BASE_SHA="${{ github.event.before }}"
-            HEAD_SHA="${{ github.sha }}"
-          fi
+        run: |       
+          $eventName = "${{ github.event_name }}"
 
-          echo "Base SHA: $BASE_SHA"
-          echo "Head SHA: $HEAD_SHA"
+          if ($eventName -eq "pull_request") {
+            Write-Host "Event is pull_request"
+            $BASE_SHA = "${{ github.event.pull_request.base.sha }}"
+            $HEAD_SHA = "${{ github.event.pull_request.head.sha }}"
+          }
+          else {
+            Write-Host "Event is push"
+            $BASE_SHA = "${{ github.event.before }}"
+            $HEAD_SHA = "${{ github.sha }}"
+          }
 
-          # In some cases (first commit, force-push etc.), before can be all zeros
-          if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BASE_SHA" ]; then
-            echo "No valid base SHA; using last commit only"
-            git show "$HEAD_SHA" > diff.txt
-          else
-            git diff "$BASE_SHA" "$HEAD_SHA" > diff.txt
-          fi
+          Write-Host "Base SHA: $BASE_SHA"
+          Write-Host "Head SHA: $HEAD_SHA"
 
-          echo "Diff size: $(wc -c < diff.txt) bytes"
+          # Handle first commit / invalid base SHA
+          if ([string]::IsNullOrEmpty($BASE_SHA) -or
+              $BASE_SHA -eq "0000000000000000000000000000000000000000") {
+
+            Write-Host "No valid base SHA; using last commit only"
+            git show $HEAD_SHA | Out-File -FilePath diff.txt -Encoding utf8
+          }
+          else {
+            git diff $BASE_SHA $HEAD_SHA | Out-File -FilePath diff.txt -Encoding utf8
+          }
+
+          $size = (Get-Item diff.txt).Length
+          Write-Host "Diff size: $size bytes"
+
 
       - name: Install OpenAI SDK
         run: |
