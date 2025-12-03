@@ -83,11 +83,20 @@ jobs:
           # *** IMPORTANT: PowerShell-style input, NO '< diff.txt' ***
           Get-Content diff.txt |
             python "$env:GITHUB_WORKSPACE/.github/scripts/ai_review.py" |
-            Out-File -FilePath review.md -Encoding utf8
+            
+          # ✅ Beautify Markdown for Teams
+          $text = Get-Content review_raw.md -Raw
 
-          'review<<EOF' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          Get-Content review.md | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-          'EOF' | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $text = $text -replace '## ', "`n🔷 "
+          $text = $text -replace '- ', "• "
+          $text = $text -replace '\*\*(.*?)\*\*', '$1'
+          $text = $text -replace '`', ''
+
+          Set-Content review_teams.txt $text -Encoding UTF8
+
+          echo "review<<EOF" >> $env:GITHUB_OUTPUT
+          Get-Content review_teams.txt >> $env:GITHUB_OUTPUT
+          echo "EOF" >> $env:GITHUB_OUTPUT
 
       - name: Send AI review to Teams via Power Automate
         if: always()   # send even if review step failed
