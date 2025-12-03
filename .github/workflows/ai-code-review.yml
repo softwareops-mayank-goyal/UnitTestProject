@@ -4,7 +4,6 @@ on:
   push:               # any branch push
   pull_request:       # PR opened/updated
 
-
 jobs:
   ai-review:
     runs-on: [self-hosted, Windows, X64]
@@ -24,12 +23,11 @@ jobs:
           echo "PATH:"
           echo $env:PATH
           git --version
-        
 
       - name: Compute diff for this event
         shell: powershell
         id: diff
-        run: |      
+        run: |
           $eventName = "${{ github.event_name }}"
 
           if ($eventName -eq "pull_request") {
@@ -60,11 +58,11 @@ jobs:
           $size = (Get-Item diff.txt).Length
           Write-Host "Diff size: $size bytes"
 
-     - name: Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          
+
       - name: Install OpenAI SDK
         run: |
           python -m pip install --upgrade pip
@@ -73,12 +71,11 @@ jobs:
       - name: Run AI review
         id: ai_review
         env:
-          # must match your repo secret name
-           AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
-           AZUREAPI: ${{ secrets.AZUREAPI }}
-           AZURE_API_VERSION: ${{ secrets.AZURE_API_VERSION }}
-           AZURE_DEPLOYMENT: gpt-4o   
-
+          # must match your repo secret names
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
+          AZUREAPI: ${{ secrets.AZUREAPI }}
+          AZURE_API_VERSION: ${{ secrets.AZURE_API_VERSION }}
+          AZURE_DEPLOYMENT: gpt-4o
         run: |
           echo "Workspace is: $GITHUB_WORKSPACE"
           ls -R .
