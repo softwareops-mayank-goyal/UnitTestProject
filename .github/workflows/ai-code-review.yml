@@ -89,9 +89,9 @@ jobs:
           $text = Get-Content review_raw.md -Raw
 
           # Headings → bullet sections
-          $text = $text -replace '## ', "`n`n🔷 "
+          $text = $text -replace '## ', "`n`n### "
           # Bullets → simple dot bullets
-          $text = $text -replace '- ', "• "
+          $text = $text -replace '- ', "• " -im
           # Remove bold markers **...**
           $text = $text -replace '\*\*(.*?)\*\*', '$1'
           # Strip backticks
