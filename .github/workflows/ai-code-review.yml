@@ -81,19 +81,21 @@ jobs:
           Get-ChildItem -Recurse .
 
           # 1) Run Python review script: diff.txt -> review_raw.md
-          Get-Content diff.txt |
-            python "$env:GITHUB_WORKSPACE/.github/scripts/ai_review.py" `
-            > review_raw.md
+          Get-Content diff.txt | python "$env:GITHUB_WORKSPACE/.github/scripts/ai_review.py" > review_raw.md
 
           # 2) Beautify Markdown for Teams
           $text = Get-Content review_raw.md -Raw
 
-          # Headings → bullet sections
+          # Headings → smaller headings
           $text = $text -replace '## ', "`n`n### "
-          # Bullets → simple dot bullets
-          $text = $text -replace '- ', "• " -im
+
+          # Bullets → Unicode bullet (•)
+          $bullet = [char]0x2022
+          $text   = $text -replace '- ', "$bullet "
+
           # Remove bold markers **...**
           $text = $text -replace '\*\*(.*?)\*\*', '$1'
+
           # Strip backticks
           $text = $text -replace '`', ''
 
@@ -105,7 +107,6 @@ jobs:
           Add-Content -Path $env:GITHUB_OUTPUT -Value "review<<EOF"
           Get-Content review_teams.txt | Add-Content -Path $env:GITHUB_OUTPUT
           Add-Content -Path $env:GITHUB_OUTPUT -Value "EOF"
-
 
       - name: Send AI review to Teams via Power Automate
         if: always()   # send even if review step failed
